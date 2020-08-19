@@ -14,14 +14,38 @@ export default class Main extends React.Component {
       movieDetail: undefined,
       searchPosition: "beforeSearch",
     }
-    this.imdbURL = "https://imdb8.p.rapidapi.com/title/find"
+    this.imdbURL = "https://imdb8.p.rapidapi.com/title/"
     this.imdbHeaders = {
       "x-rapidapi-host": "imdb8.p.rapidapi.com",
-      "x-rapidapi-key": "b3e24cc908mshe08416a73248e05p147bddjsn141b6a5f75c2"
+      "x-rapidapi-key": "f02e6d7533msh44a1ffcc0652732p11824ajsn5460740c6b15"
+      //"b3e24cc908mshe08416a73248e05p147bddjsn141b6a5f75c2"
     }
     this.proxy = "https://thingproxy.freeboard.io/fetch/"
     this.wikiSearchURL = "https://en.wikipedia.org/w/rest.php/v1/search/page"
     this.wikiExtractURL = "https://en.wikipedia.org/w/api.php?format=json&action=query&prop=extracts&exintro&explaintext&redirects=1"
+  }
+
+  formatIMDBArrayResponse = response => {
+    let moviesFromResponse = []
+    for ( let result of response) {
+      if (result.title !== undefined && result.title !== " ") {
+        moviesFromResponse.push({
+          title: result.title,
+          imageUrl: result.image === undefined ? undefined : result.image.url,
+          id: result.id.split("/")[2],
+          type: result.titleType,
+          year: result.year,
+          runningTimeInMinutes: result.runningTimeInMinutes,
+          actors: result.principals === undefined ? "--" : result.principals.map(actor => actor.name).toString()
+        })
+      }
+    }
+    return moviesFromResponse
+  }
+
+  formatIMDBResponse = response => {
+    let moviesFromResponse = []
+    return moviesFromResponse
   }
 
   getMoviesFromIMDB = title => {
@@ -32,38 +56,23 @@ export default class Main extends React.Component {
       }
     }
 
-    axios.get(this.imdbURL, config)
-      .then( response => {
-        console.log(response)
-        let moviesFromResponse = []
-        for ( let result of response.data.results) {
-          if (result.title !== undefined && result.title !== " ") {
-            moviesFromResponse.push({
-              title: result.title,
-              imageUrl: result.image === undefined ? undefined : result.image.url,
-              id: result.id.split("/")[2],
-              type: result.titleType,
-              year: result.year,
-              runningTimeInMinutes: result.runningTimeInMinutes,
-              actors: result.principals === undefined ? "--" : result.principals.map(actor => actor.name).toString()
-            })
-          }
-        }
-        this.setState({movies: moviesFromResponse}) 
-      }).catch( error => console.log(error) )
+    axios.get(this.imdbURL + "find", config)
+      .then( response => this.setState({movies: this.formatIMDBArrayResponse(response.data.results)}) )
+      .catch( error => console.log(error) )
   }
 
   getMovieWikipedia = movie => {
     const search = movie.title + movie.year + movie.actors
     const url = this.proxy + this.wikiSearchURL
     const config = {
-        params: {
-            q: search,
-            limit: "1",
-            format: "json"
-        }
+      params: {
+        q: search,
+        limit: "1",
+        format: "json"
+      }
     }
     axios.get(url, config).then( resp => {
+      if (resp.data.pages[0] !== undefined) {
         const wikipediaPageId = resp.data.pages[0].id
         const url = this.proxy + this.wikiExtractURL
         const config = {
@@ -79,12 +88,38 @@ export default class Main extends React.Component {
               wikiPageId: wikipediaPageId
             }) 
         })
-    } )
+      } else this.setState({movieDetail: "Wikipedia Page Not Found" }) 
+    })
   }
 
+  //https://imdb8.p.rapidapi.com/title/get-more-like-this
+  //https://imdb8.p.rapidapi.com/title/get-details
   getRelated = movieId => {
-    //https://imdb8.p.rapidapi.com/title/get-more-like-this
-    //https://imdb8.p.rapidapi.com/title/get-details
+    const config = {
+      headers: this.imdbHeaders,
+      params: {
+        tconst: movieId
+      }
+    }
+    axios.get(this.imdbURL + "get-more-like-this", config)
+    .then(async response => {
+      let movieDetail = []
+      
+      for (let i = 0; i < 3; i++) {
+        config.params.tconst = response.data[i].split("/")[2]
+        movieDetail.push(await axios.get(this.imdbURL + "get-details", config))
+      }
+      
+      const formatedRaletedMovied = this.formatIMDBArrayResponse(movieDetail.map(resp => resp.data))
+      this.setState({movies: formatedRaletedMovied})
+      this.closeMovieDetails()
+      
+    })
+    .catch(error => console.log(error))
+  }
+
+  handleShowRelated = () => {
+    this.getRelated(this.state.selectedMovie.id)
   }
 
   handleSearch = title => {
@@ -108,9 +143,9 @@ export default class Main extends React.Component {
 
   render() {
     return (
-      // <div className="bg">
-        <div classname={this.state.searchPosition} >
-            <Search onSearch={ title => this.handleSearch(title)}/>
+      <div className="bg">
+        <div>
+            <Search onSearch={title => this.handleSearch(title)} style={this.state.searchPosition}/>
             <Results data={this.state.movies} onItemPressed={this.openMovieDetails} />
             {this.state.movieDetail && 
             <Details 
@@ -118,9 +153,10 @@ export default class Main extends React.Component {
               movieDetail={this.state.movieDetail} 
               wikiPageId={this.state.wikiPageId}
               onClose={this.closeMovieDetails}
+              onShowRelated={this.handleShowRelated}
             />}
         </div>
-      // </div>
+      </div>
     );
   }
 

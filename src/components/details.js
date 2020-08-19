@@ -1,10 +1,10 @@
 import React from 'react';
-import { makeStyles } from '@material-ui/core/styles';
 import Modal from '@material-ui/core/Modal';
-import Backdrop from '@material-ui/core/Backdrop';
 import Fade from '@material-ui/core/Fade';
 import '../App.css';
 
+// import Backdrop from '@material-ui/core/Backdrop';
+// import { makeStyles } from '@material-ui/core/styles';
 // const useStyles = makeStyles((theme) => ({
 //   modal: {
 //     display: 'flex',
@@ -20,12 +20,11 @@ import '../App.css';
 // }));
 
 export default class Details extends React.Component {
-  constructor(props) {
-    super(props)
-  }
+  // constructor(props) {
+  //   super(props)
+  // }
 
   render() {
-    console.log(this.props)
     return (
       <div>
         <Modal
@@ -44,9 +43,9 @@ export default class Details extends React.Component {
                 <img alt={this.props.movie.title} src={this.props.movie.imageUrl} height="200"/>
               </div>
               <div>
-                <h>{this.props.movie.title}</h>
+                <h1>{this.props.movie.title}</h1>
                 <p>{this.props.movieDetail}</p>
-                <a href={`https://www.imdb.com/title/${this.props.movie.id}/`}> Show related movies </a>
+                <button onClick={this.props.onShowRelated}> Show related movies </button>
                 <div>
                   <a href={`https://en.wikipedia.org/?curid=${this.props.wikiPageId}/`}> Wikipedia </a>
                   <a href={`https://www.imdb.com/title/${this.props.movie.id}/`}> IMDb </a>

@@ -1,6 +1,20 @@
 import React from 'react';
 import TextField from '@material-ui/core/TextField';
 import Button from '@material-ui/core/Button';
+import {
+  fade,
+  ThemeProvider,
+  withStyles,
+  makeStyles,
+  createMuiTheme
+} from "@material-ui/core/styles";
+import { blue } from '@material-ui/core/colors';
+
+const theme = createMuiTheme({
+  palette: {
+    primary: blue,
+  },
+});
 
 export default class Search extends React.Component {
   constructor(props) {
@@ -25,20 +39,42 @@ export default class Search extends React.Component {
   }
 
   render() {
+    const classes = {
+      root: {
+        background: "black"
+      },
+      input: {
+        color: "white"
+      }
+    };
     return (
       <form 
         noValidate 
         autoComplete="off"
         onSubmit={this.handleSubmit}
+        className={this.props.style}
       >
         <TextField 
-          id="seatch" 
+          id="search" 
           label="Search for a title..." 
           placeholder="Enter a movie title"
           value={this.state.value}
           onChange={this.handleChange}
+          InputProps={{
+            classes: {
+               root: {
+                borderColor: 'orange'
+             }
+            }
+          }}
         />
-        <Button disabled={this.state.canSubmit} type="submit">Search</Button>
+        <Button 
+          disabled={this.state.canSubmit} 
+          type="submit"
+          style={{height: 50, color: '#dd2c00'}}
+        >
+          Search
+        </Button>
       </form>
     )
   }
