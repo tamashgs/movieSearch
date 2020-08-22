@@ -38,7 +38,7 @@ export default class Details extends React.Component {
         // }}
         >
           <Fade in={this.props.movieDetail!==undefined}>
-            <div style={{display:'flex', flexDirection: 'row',}}>
+            <div style={{display:'flex', flexDirection: 'row'}}>
               <div>
                 <img alt={this.props.movie.title} src={this.props.movie.imageUrl} height="200"/>
               </div>

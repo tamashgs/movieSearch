@@ -3,6 +3,7 @@ import axios from 'axios'
 import Search from '../components/search'
 import Results from '../components/results'
 import Details from '../components/details'
+import Progress from '../components/progress'
 import '../App.css';
 
 export default class Main extends React.Component {
@@ -13,6 +14,7 @@ export default class Main extends React.Component {
       selectedMovie: undefined,
       movieDetail: undefined,
       searchPosition: "beforeSearch",
+      loading: undefined
     }
     this.imdbURL = "https://imdb8.p.rapidapi.com/title/"
     this.imdbHeaders = {
@@ -23,6 +25,14 @@ export default class Main extends React.Component {
     this.proxy = "https://thingproxy.freeboard.io/fetch/"
     this.wikiSearchURL = "https://en.wikipedia.org/w/rest.php/v1/search/page"
     this.wikiExtractURL = "https://en.wikipedia.org/w/api.php?format=json&action=query&prop=extracts&exintro&explaintext&redirects=1"
+  }
+
+  onDownloadProgress = progressEvent => {
+    const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+    this.setState({loading: percentCompleted})
+    if ( percentCompleted === 100 ) 
+      setTimeout(() => this.setState({loading: undefined}), 1000)
+    this.setState({loading: undefined})
   }
 
   formatIMDBArrayResponse = response => {
@@ -53,12 +63,17 @@ export default class Main extends React.Component {
       headers: this.imdbHeaders,
       params: {
         q: title
-      }
+      },
+      onDownloadProgress: this.onDownloadProgress
     }
-
+    this.setState({loading: 0})
     axios.get(this.imdbURL + "find", config)
       .then( response => this.setState({movies: this.formatIMDBArrayResponse(response.data.results)}) )
-      .catch( error => console.log(error) )
+      .catch( error => {
+        this.setState({movies: [{title:'Peaky Blinders', id: 'tt3566726', year: 2013, actors: 'Cillian'}]})
+        window.alert(error)
+        console.log(error) 
+      })
   }
 
   getMovieWikipedia = movie => {
@@ -69,27 +84,31 @@ export default class Main extends React.Component {
         q: search,
         limit: "1",
         format: "json"
-      }
+      },
+      onDownloadProgress: this.onDownloadProgress
     }
-    axios.get(url, config).then( resp => {
-      if (resp.data.pages[0] !== undefined) {
-        const wikipediaPageId = resp.data.pages[0].id
-        const url = this.proxy + this.wikiExtractURL
-        const config = {
-            params: {
-                pageids: wikipediaPageId
-                // titles: resp.data.pages[0].title,
-            }
-        }
-        axios.get(url, config).then( resp => {
-            // window.alert(Object.values(resp.data.query.pages)[0].extract)
-            this.setState({
-              movieDetail: Object.values(resp.data.query.pages)[0].extract,
-              wikiPageId: wikipediaPageId
-            }) 
-        })
-      } else this.setState({movieDetail: "Wikipedia Page Not Found" }) 
-    })
+    this.setState({loading: 0})
+    axios.get(url, config)
+      .then( resp => {
+        if (resp.data.pages[0] !== undefined) {
+          const wikipediaPageId = resp.data.pages[0].id
+          const url = this.proxy + this.wikiExtractURL
+          const config = {
+              params: {
+                  pageids: wikipediaPageId
+              }
+          }
+          axios.get(url, config)
+            .then( resp => {
+              this.setState({
+                movieDetail: Object.values(resp.data.query.pages)[0].extract,
+                wikiPageId: wikipediaPageId
+              })
+            })
+            .catch( error => console.log(error))
+        } else this.setState({movieDetail: "Wikipedia Page Not Found" }) 
+      })
+      .catch( error => console.log(error))
   }
 
   //https://imdb8.p.rapidapi.com/title/get-more-like-this
@@ -99,8 +118,10 @@ export default class Main extends React.Component {
       headers: this.imdbHeaders,
       params: {
         tconst: movieId
-      }
+      },
+      onDownloadProgress: this.onDownloadProgress
     }
+    this.setState({loading: 0})
     axios.get(this.imdbURL + "get-more-like-this", config)
     .then(async response => {
       let movieDetail = []
@@ -115,7 +136,7 @@ export default class Main extends React.Component {
       this.closeMovieDetails()
       
     })
-    .catch(error => console.log(error))
+    .catch( error => console.log(error))
   }
 
   handleShowRelated = () => {
@@ -123,7 +144,10 @@ export default class Main extends React.Component {
   }
 
   handleSearch = title => {
-    this.setState({searchPosition: "afterSearch",}) 
+    // if (this.state.searchPosition === "afterSearch")
+    //   this.setState({searchPosition: "beforeSearch"}) 
+    // else 
+    this.setState({searchPosition: "afterSearch"}) 
     this.getMoviesFromIMDB(title)    
   }
 
@@ -145,6 +169,7 @@ export default class Main extends React.Component {
     return (
       <div className="bg">
         <div>
+            {this.state.loading !== undefined && <Progress progress={this.state.loading} />}
             <Search onSearch={title => this.handleSearch(title)} style={this.state.searchPosition}/>
             <Results data={this.state.movies} onItemPressed={this.openMovieDetails} />
             {this.state.movieDetail && 

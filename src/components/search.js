@@ -1,20 +1,7 @@
 import React from 'react';
 import TextField from '@material-ui/core/TextField';
 import Button from '@material-ui/core/Button';
-import {
-  fade,
-  ThemeProvider,
-  withStyles,
-  makeStyles,
-  createMuiTheme
-} from "@material-ui/core/styles";
-import { blue } from '@material-ui/core/colors';
-
-const theme = createMuiTheme({
-  palette: {
-    primary: blue,
-  },
-});
+import '../App.css';
 
 export default class Search extends React.Component {
   constructor(props) {
@@ -39,14 +26,6 @@ export default class Search extends React.Component {
   }
 
   render() {
-    const classes = {
-      root: {
-        background: "black"
-      },
-      input: {
-        color: "white"
-      }
-    };
     return (
       <form 
         noValidate 
@@ -60,18 +39,25 @@ export default class Search extends React.Component {
           placeholder="Enter a movie title"
           value={this.state.value}
           onChange={this.handleChange}
+          style={{
+            border: "white",
+            color: "white"
+          }}
           InputProps={{
-            classes: {
-               root: {
-                borderColor: 'orange'
-             }
+            style: {
+                color: "white",
+            }
+          }}
+          InputLabelProps={{
+            style: {
+              color: "white"
             }
           }}
         />
         <Button 
           disabled={this.state.canSubmit} 
           type="submit"
-          style={{height: 50, color: '#dd2c00'}}
+          style={{height: 50, color: 'white'}}
         >
           Search
         </Button>
