@@ -1,3 +1,19 @@
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #000000; 
+}
+ 
+::-webkit-scrollbar-thumb {
+  background: rgba(120, 0, 0, 0.671);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgb(120, 0, 0);
+}
+
 .beforeSearch {
   position: absolute;
   left: 0; 
@@ -57,9 +73,57 @@
   top: 45%;
 }
 
+.detailBox {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-content: center;
+  align-items: center;
+  justify-content: space-around;
+}
+
+.detailImageBox {
+  text-align: center;
+}
+
+.detailImageBox img {
+  max-width: 300px;
+}
+
+.detailTextBox {
+  text-align: center;
+  min-width: 300px;
+  width: 63%;
+}
+
+.detailTextBox p {
+  max-height: 400px !important;
+  overflow: auto;
+}
+
+.detailTextBox button{
+  text-transform: none;
+  padding: 10px;
+  margin: 10px;
+  color: rgb(13, 56, 252);
+}
+
+.detailTextBox div a{
+  padding: 10px;
+  color: rgb(13, 56, 252);
+}
 
 .modal {
+  display: flex;
+  align-items: center;
   margin: 50px;
-  background-color: rgba(255, 255, 255, 0.8);
-  color: white;
+  background-color: rgba(0, 0, 0, 0.8);
+  color: blanchedalmond;
 }
+
+@media (max-width:800px) { 
+  .detailBox {
+    flex-direction: column;
+    flex-wrap: wrap;
+  }
+} 
