@@ -1,41 +1,46 @@
 import React from 'react';
-import List from '@material-ui/core/List';
-import ListItem from '@material-ui/core/ListItem';
-import ListItemText from '@material-ui/core/ListItemText';
+import Typography from '@material-ui/core/Typography';
+import Box from '@material-ui/core/Box';
+import './components.css'
 
 export default class Results extends React.Component {
-
-  handlePress = event => {
-    this.props.onItemPressed(event)
-  }
 
   render() {
     if (this.props.data !== undefined) {
       return (
-        <List>
-          {this.props.data.map( movie =>
-            <ListItem 
-              button
+        <Box
+          display="flex"
+          flexWrap="wrap"
+          p={1}
+          m={1}
+          justifyContent="center"
+          style={{padding: 30}}
+        >
+          {this.props.data.map( movie => 
+            <Box 
               id={movie.id}
-              data={movie}
-              title={movie.title}
-              actor={movie.actors}
               key={movie.id}
-              href={`https://www.imdb.com/title/${movie.id}`}
-              onClick={this.handlePress}
-            >
-              {movie.imageUrl === undefined ?
-                <img alt={movie.title} src="https://www.thermaxglobal.com/wp-content/uploads/2020/05/image-not-found.jpg" height="200"/>
-                :
-                <img alt={movie.title} src={movie.imageUrl} height="200"/>
-              }
-              <ListItemText primary={movie.title} style={{paddingLeft:10}} />
-              <ListItemText secondary={movie.type} />
-              <ListItemText secondary={movie.actors} />
-              <ListItemText secondary={movie.year} />
-            </ListItem>
+              onClick={this.props.onItemPressed}
+              className="filmItemBox"
+            > 
+              <img 
+                alt={movie.title} src={movie.imageUrl === undefined ? require("../images/notFound.png") : movie.imageUrl} 
+                width="180"
+              />
+              <Typography style={{fontSize: 28, paddingTop: 10, maxWidth: 200}}>
+                {movie.title}
+              </Typography >
+              <Typography style={{fontSize: 18, padding: 10,  maxWidth: 200}}>
+                { movie.year +  " - " +
+                  movie.type +  " - " +
+                  Math.floor(movie.min/60) + "h " +Math.round(((movie.min / 60)-Math.floor(movie.min/60))*60*100)/100+"m"}
+              </Typography >
+              <Typography style={{fontFamily: 'Poppins', fontSize: 15, paddingBottom: 5,  maxWidth: 200}}>
+                {movie.actors}
+              </Typography >
+            </Box>
           )}
-        </List>
+        </Box>
       )
     } else { 
       return null

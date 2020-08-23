@@ -4,15 +4,15 @@ import Search from '../components/search'
 import Results from '../components/results'
 import Details from '../components/details'
 import Progress from '../components/progress'
-import '../App.css';
+import './main.css';
 
 export default class Main extends React.Component {
   constructor(props) {
     super(props)
     this.state = {
       movies: undefined,
-      selectedMovie: undefined,
-      movieDetail: undefined,
+      selectedMovie: {id: "1", actors: "Cillian Murphy, Jozsika", min: 110, title:'Peaky Blinders', id: 'tt3566726', year: 2013, type: 'Cillian', imageUrl: 'https://m.media-amazon.com/images/M/MV5BMjUxMDEzNTYyN15BMl5BanBnXkFtZTgwMjQyMzg1NzM@._V1_UY268_CR16,0,182,268_AL_.jpg '},
+      movieDetail: "fain",
       searchPosition: "beforeSearch",
       loading: undefined
     }
@@ -45,7 +45,7 @@ export default class Main extends React.Component {
           id: result.id.split("/")[2],
           type: result.titleType,
           year: result.year,
-          runningTimeInMinutes: result.runningTimeInMinutes,
+          min: result.runningTimeInMinutes,
           actors: result.principals === undefined ? "--" : result.principals.map(actor => actor.name).toString()
         })
       }
@@ -59,6 +59,15 @@ export default class Main extends React.Component {
   }
 
   getMoviesFromIMDB = title => {
+    // this.setState({movies: [
+    //   {id: "1", actors: "Cillian Murphy, Jozsika", min: 110, title:'Peaky Blinders', id: 'tt3566726', year: 2013, type: 'Cillian', imageUrl: 'https://m.media-amazon.com/images/M/MV5BMjUxMDEzNTYyN15BMl5BanBnXkFtZTgwMjQyMzg1NzM@._V1_UY268_CR16,0,182,268_AL_.jpg '},
+    //   {id: "1", actors: "Cillian Murphy, Jozsika",min: 120, title:'Peaky Blinders', id: 'tt3566726', year: 2013, type: 'Cillian', imageUrl: 'https://m.media-amazon.com/images/M/MV5BMjUxMDEzNTYyN15BMl5BanBnXkFtZTgwMjQyMzg1NzM@._V1_UY268_CR16,0,182,268_AL_.jpg '},
+    //   {id: "1", actors: "Cillian Murphy, Jozsika",min: 120, title:'Peaky Blinders', id: 'tt3566726', year: 2013, type: 'Cillian', imageUrl: 'https://m.media-amazon.com/images/M/MV5BMjUxMDEzNTYyN15BMl5BanBnXkFtZTgwMjQyMzg1NzM@._V1_UY268_CR16,0,182,268_AL_.jpg '},
+    //   {id: "1", actors: "Cillian Murphy, Jozsika",min: 120, title:'Peaky Blinders', id: 'tt3566726', year: 2013, type: 'Cillian', imageUrl: 'https://m.media-amazon.com/images/M/MV5BMjUxMDEzNTYyN15BMl5BanBnXkFtZTgwMjQyMzg1NzM@._V1_UY268_CR16,0,182,268_AL_.jpg '},
+    //   {id: "1", actors: "Cillian Murphy, Jozsika",min: 120, title:'Peaky Blinders', id: 'tt3566726', year: 2013, type: 'Cillian', imageUrl: 'https://m.media-amazon.com/images/M/MV5BMjUxMDEzNTYyN15BMl5BanBnXkFtZTgwMjQyMzg1NzM@._V1_UY268_CR16,0,182,268_AL_.jpg '},
+    //   {id: "1", actors: "Cillian Murphy, Jozsika",min: 120, title:'Peaky Blinders', id: 'tt3566726', year: 2013, type: 'Cillian', imageUrl: 'https://m.media-amazon.com/images/M/MV5BMjUxMDEzNTYyN15BMl5BanBnXkFtZTgwMjQyMzg1NzM@._V1_UY268_CR16,0,182,268_AL_.jpg '},
+    //   {id: "1", actors: "Cillian Murphy, Jozsika",min: 120, title:'Peaky Blinders', id: 'tt3566726', year: 2013, type: 'Cillian', imageUrl: 'https://m.media-amazon.com/images/M/MV5BMjUxMDEzNTYyN15BMl5BanBnXkFtZTgwMjQyMzg1NzM@._V1_UY268_CR16,0,182,268_AL_.jpg '},
+    // ]})
     const config = {
       headers: this.imdbHeaders,
       params: {
@@ -141,24 +150,21 @@ export default class Main extends React.Component {
 
   handleShowRelated = () => {
     this.getRelated(this.state.selectedMovie.id)
+    this.handleCloseDetails()
   }
 
   handleSearch = title => {
-    // if (this.state.searchPosition === "afterSearch")
-    //   this.setState({searchPosition: "beforeSearch"}) 
-    // else 
     this.setState({searchPosition: "afterSearch"}) 
     this.getMoviesFromIMDB(title)    
   }
 
-  openMovieDetails = event => {
-    const movie = this.state.movies.find(movie => movie.id === event.target.id)
+  handleItemPressed = event => {
+    const movie = this.state.movies.find(movie => movie.id === event.currentTarget.id)
     this.setState({selectedMovie: movie})
     this.getMovieWikipedia(movie)
-    // window.open(`https://www.imdb.com/title/${movie.target.id}`, "_blank")
   }
 
-  closeMovieDetails = () => {
+  handleCloseDetails = () => {
     this.setState({
       movieDetail: undefined,
       selectedMovie: undefined,
@@ -171,13 +177,13 @@ export default class Main extends React.Component {
         <div>
             {this.state.loading !== undefined && <Progress progress={this.state.loading} />}
             <Search onSearch={title => this.handleSearch(title)} style={this.state.searchPosition}/>
-            <Results data={this.state.movies} onItemPressed={this.openMovieDetails} />
+            <Results data={this.state.movies} onItemPressed={this.handleItemPressed} />
             {this.state.movieDetail && 
             <Details 
               movie={this.state.selectedMovie}
               movieDetail={this.state.movieDetail} 
               wikiPageId={this.state.wikiPageId}
-              onClose={this.closeMovieDetails}
+              onClose={this.handleCloseDetails}
               onShowRelated={this.handleShowRelated}
             />}
         </div>

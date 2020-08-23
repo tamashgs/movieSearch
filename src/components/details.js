@@ -1,7 +1,12 @@
 import React from 'react';
 import Modal from '@material-ui/core/Modal';
 import Fade from '@material-ui/core/Fade';
+import Box from '@material-ui/core/Box';
+import Button from '@material-ui/core/Button';
+import Link from '@material-ui/core/Link'
 import '../App.css';
+
+import Backdrop from '@material-ui/core/Backdrop';
 
 // import Backdrop from '@material-ui/core/Backdrop';
 // import { makeStyles } from '@material-ui/core/styles';
@@ -24,6 +29,9 @@ export default class Details extends React.Component {
   //   super(props)
   // }
 
+  setImage = imageUrl => 
+    this.props.movie.imageUrl === undefined ? "../images/not_found.jpg" : imageUrl
+
   render() {
     return (
       <div>
@@ -31,27 +39,41 @@ export default class Details extends React.Component {
           className="modal"
           open={this.props.movieDetail!==undefined}
           onClose={this.props.onClose}
-          // closeAfterTransition
-          // BackdropComponent={Backdrop}
-          // BackdropProps={{
-          // timeout: 500,
-        // }}
+          closeAfterTransition
+          BackdropComponent={Backdrop}
+          BackdropProps={{
+          timeout: 500,
+        }}
         >
           <Fade in={this.props.movieDetail!==undefined}>
-            <div style={{display:'flex', flexDirection: 'row'}}>
-              <div>
-                <img alt={this.props.movie.title} src={this.props.movie.imageUrl} height="200"/>
-              </div>
-              <div>
+            <Box style={{display:'flex', flexDirection: 'row', flexWrap: "wrap"}}>
+              <Box style={{padding: 10, alignItems: 'stretch', justifyContent:'center', height: '80%', width: '35%'}}> 
+                  <img alt={this.props.movie.title} src={this.setImage(this.props.movie.imageUrl)} height="50%"/>
+              </Box>
+              <Box style={{padding: 10, alignItems: 'center', height: '80%', width: '60%'}}>
                 <h1>{this.props.movie.title}</h1>
                 <p>{this.props.movieDetail}</p>
-                <button onClick={this.props.onShowRelated}> Show related movies </button>
+                <Button onClick={this.props.onShowRelated}> Show related movies </Button>
                 <div>
-                  <a href={`https://en.wikipedia.org/?curid=${this.props.wikiPageId}/`}> Wikipedia </a>
-                  <a href={`https://www.imdb.com/title/${this.props.movie.id}/`}> IMDb </a>
+                  <Link
+                    href={`https://en.wikipedia.org/?curid=${this.props.wikiPageId}/`}
+                    rel="noopener noreferrer"
+                    target="_blank"
+                    variant="body2"
+                  >
+                    Wikipedia
+                  </Link>
+                  <Link
+                    href={`https://www.imdb.com/title/${this.props.movie.id}/`}
+                    rel="noopener noreferrer"
+                    target="_blank"
+                    variant="body2"
+                  >
+                    IMDb
+                  </Link>
                 </div>
-              </div>
-            </div>
+              </Box>
+            </Box>
           </Fade>
       </Modal>
   </div>
