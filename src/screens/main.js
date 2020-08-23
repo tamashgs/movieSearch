@@ -163,28 +163,26 @@ export default class Main extends React.Component {
   render() {
     return (
       <div className="bg">
-        <div>
-          {this.state.loading !== undefined && (
-            <Progress progress={this.state.loading} />
-          )}
-          <Search
-            onSearch={(title) => this.handleSearch(title)}
-            style={this.state.searchPosition}
+        {this.state.loading !== undefined && (
+          <Progress progress={this.state.loading} />
+        )}
+        <Search
+          onSearch={(title) => this.handleSearch(title)}
+          style={this.state.searchPosition}
+        />
+        <Results
+          data={this.state.movies}
+          onItemPressed={this.handleItemPressed}
+        />
+        {this.state.movieDetail && (
+          <Details
+            movie={this.state.selectedMovie}
+            movieDetail={this.state.movieDetail}
+            wikiPageId={this.state.wikiPageId}
+            onClose={this.handleCloseDetails}
+            onShowRelated={this.handleShowRelated}
           />
-          <Results
-            data={this.state.movies}
-            onItemPressed={this.handleItemPressed}
-          />
-          {this.state.movieDetail && (
-            <Details
-              movie={this.state.selectedMovie}
-              movieDetail={this.state.movieDetail}
-              wikiPageId={this.state.wikiPageId}
-              onClose={this.handleCloseDetails}
-              onShowRelated={this.handleShowRelated}
-            />
-          )}
-        </div>
+        )}
       </div>
     );
   }

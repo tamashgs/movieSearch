@@ -121,6 +121,7 @@
   color: blanchedalmond;
 }
 
+/* TODO: Responsivity */
 @media (max-width:800px) { 
   .detailBox {
     flex-direction: column;
